@@ -221,3 +221,6 @@ cython_debug/
 *.sublime-project
 vscode/
 idea/
+
+*.fls
+*.fdb_latexmk
