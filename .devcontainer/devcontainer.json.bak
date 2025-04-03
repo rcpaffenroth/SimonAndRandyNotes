@@ -4,26 +4,33 @@
 	"name": "Default Linux Universal",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
-	"features": {
-		"ghcr.io/devcontainers-extra/features/apt-packages:1": {
-			"clean_ppas": true,
-			"preserve_apt_list": true,
-			"packages": "texlive-science, texlive-publishers",
-			"ppas": "ppa:deadsnakes/ppa"
-		}
-	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+	"features": {
+    // Add the apt-packages feature
+    "ghcr.io/devcontainers/features/apt-packages:1": {
+      // Options for the feature
+      "packages": "texlive-science, texlive-publishers", // Comma-separated list
+    }
+    // You can add other features here too
+    // "ghcr.io/devcontainers/features/node:1": {}
+  }
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "uname -a",
+	//"postCreateCommand": "apt update && apt install texlive-science texlive-publishers",
 
 	// Configure tool-specific properties.
-	// "customizations": {},
+	"customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+				"James-Yu.latex-workshop"
+            ]
+        }
+    },
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
