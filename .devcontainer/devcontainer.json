@@ -12,7 +12,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "uname -a",
+	"postCreateCommand": "apt update && apt install texlive-science texlive-publishers",
 
 	// Configure tool-specific properties.
 	"customizations": {
