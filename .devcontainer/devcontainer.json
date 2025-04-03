@@ -6,13 +6,21 @@
 	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+	"features": {
+    // Add the apt-packages feature
+    "ghcr.io/devcontainers/features/apt-packages:1": {
+      // Options for the feature
+      "packages": "texlive-science, texlive-publishers", // Comma-separated list
+    }
+    // You can add other features here too
+    // "ghcr.io/devcontainers/features/node:1": {}
+  }
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "apt update && apt install texlive-science texlive-publishers",
+	//"postCreateCommand": "apt update && apt install texlive-science texlive-publishers",
 
 	// Configure tool-specific properties.
 	"customizations": {

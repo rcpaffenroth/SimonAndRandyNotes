@@ -1,0 +1,499 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{csquotes}
+
+\usepackage{color}
+\definecolor{Blue}{rgb}{0,0,1}
+\definecolor{Green}{rgb}{0,.5,0}
+\definecolor{Red}{rgb}{.8,.2,0}
+
+\newcommand{\tblue}[1]{\textcolor{Blue}{#1}}
+\newcommand{\tgreen}[1]{\textcolor{Green}{#1}}
+\newcommand{\tred}[1]{\textcolor{Red}{#1}}
+
+\title{Training of dynamical systems by proxy}
+\author{SJT and RCP}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+Formalize discussion of December 6, 2024
+
+\section{Problem One}
+\subsection{Notation}
+
+Notation for data frame
+\begin{itemize}
+    \item $D$ = number of training data sets
+    \item $M$ = number of training methods
+    \item $N$ = number of trainable \emph{blocks} in the dynamical system
+    \item $L$ = number of trials for different choices of the faction of entries in each block that are trainable
+    \item $Q$ = number of trials of the dynamical system tested on a data set that is not in the training set
+    
+\end{itemize}
+Further, to keep the indices constant throughout
+\begin{itemize}
+    \item $i$ is the index for the learner architecture
+    \item $j$ is the index for the trainable blocks
+    \item $k$ is the index for the data set
+    \item $l$ is the index for the trials
+\end{itemize}
+
+Notation for items in the data frame 
+\begin{itemize}
+    \item $T_i,\ i=1,\dots,M$ is the $i$th training method
+    \item $B_j,\ j=1,\dots,N$ is the $j$th trainable block of the dynamical system
+    \item $\gamma_i^{(k)},\ i=1,\dots,M, \ k=1,\dots,D$ = accuracy of the $i$th training method on the $k$th training data set
+    \item $\alpha_{jl}^{(k)},\ j=1,\dots,N, \ l=1,\dots,L, \ k=1,\dots,D$ = \textbf{predetermined} (fixed) fraction of trainable parameters in the $j$th block of the dynamical system for the $l$th trial on the $k$th training data set
+    \item $\Gamma_l^{(k)},\ l=1,\dots,L, \ k=1,\dots,D$ is the accuracy of dynamical system for the $l$th trial on the $k$th data set
+\end{itemize}
+
+\subsection{Table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{||l||c|c|c|c||c|c|c|c|c||}
+\hline
+Data Set & $T_1$            & $T_2$            & \dots    & $T_M$            & $B_1$               & $B_2$               & \dots  & $B_N$                & $\Gamma$         \\
+\hline
+1        & $\gamma_1^{(1)}$ & $\gamma_2^{(1)}$ & \dots    & $\gamma_M^{(1)}$ & $\alpha_{11}^{(1)}$ & $\alpha_{21}^{(1)}$ & \dots  & $\alpha_{N1}^{(1)}$  & $\Gamma_1^{(1)}$ \\
+1        & $\gamma_1^{(1)}$ & $\gamma_2^{(1)}$ & \dots    & $\gamma_M^{(1)}$ & $\alpha_{12}^{(1)}$ & $\alpha_{22}^{(1)}$ & \dots  & $\alpha_{N2}^{(1)}$  & $\Gamma_2^{(1)}$ \\
+\vdots   & \vdots           & \vdots           & \vdots   & \vdots           & \vdots              & \vdots              & \vdots & \vdots               & \vdots         \\
+1        & $\gamma_1^{(1)}$ & $\gamma_2^{(1)}$ & \dots    & $\gamma_M^{(1)}$ & $\alpha_{1L}^{(1)}$ & $\alpha_{2L}^{(1)}$ & \dots  & $\alpha_{NL}^{(1)}$  & $\Gamma_L^{(1)}$ \\
+\hline
+2        & $\gamma_1^{(2)}$ & $\gamma_2^{(2)}$ & \dots    & $\gamma_M^{(2)}$ & $\alpha_{11}^{(2)}$ & $\alpha_{21}^{(2)}$ & \dots  & $\alpha_{N1}^{(2)}$  & $\Gamma_1^{(2)}$ \\
+2        & $\gamma_1^{(2)}$ & $\gamma_2^{(2)}$ & \dots    & $\gamma_M^{(2)}$ & $\alpha_{12}^{(2)}$ & $\alpha_{22}^{(2)}$ & \dots  & $\alpha_{N2}^{(2)}$  & $\Gamma_2^{(2)}$ \\
+\vdots   & \vdots           & \vdots           & \vdots   & \vdots           & \vdots              & \vdots              & \vdots & \vdots               & \vdots         \\
+2        & $\gamma_1^{(2)}$ & $\gamma_2^{(2)}$ & \dots    & $\gamma_M^{(2)}$ & $\alpha_{1L}^{(2)}$ & $\alpha_{2L}^{(2)}$ & \dots  & $\alpha_{NL}^{(2)}$  & $\Gamma_L^{(2)}$ \\
+\hline
+\vdots   & \vdots           & \vdots           & \vdots   & \vdots           & \vdots              & \vdots              & \vdots & \vdots               & \vdots         \\
+\vdots   & \vdots           & \vdots           & \vdots   & \vdots           & \vdots              & \vdots              & \vdots & \vdots               & \vdots         \\
+\hline
+D        & $\gamma_1^{(D)}$ & $\gamma_2^{(D)}$ & \dots    & $\gamma_M^{(D)}$ & $\alpha_{11}^{(D)}$ & $\alpha_{21}^{(D)}$ & \dots  & $\alpha_{N1}^{(D)}$  & $\Gamma_1^{(D)}$ \\
+D        & $\gamma_1^{(D)}$ & $\gamma_2^{(D)}$ & \dots    & $\gamma_M^{(D)}$ & $\alpha_{12}^{(D)}$ & $\alpha_{22}^{(D)}$ & \dots  & $\alpha_{N2}^{(D)}$  & $\Gamma_2^{(D)}$ \\
+\vdots   & \vdots           & \vdots           & \vdots   & \vdots           & \vdots              & \vdots              & \vdots & \vdots               & \vdots         \\
+D        & $\gamma_1^{(D)}$ & $\gamma_2^{(D)}$ & \dots    & $\gamma_M^{(D)}$ & $\alpha_{1L}^{(D)}$ & $\alpha_{2L}^{(D)}$ & \dots  & $\alpha_{NL}^{(D)}$  & $\Gamma_L^{(D)}$ \\
+\hline
+\end{tabular}
+\caption{Data frame}
+\label{first table}
+\end{table}
+
+\subsection{Algorithm}
+
+\begin{algorithmic}
+\For k=1,\dots,D
+    \For i=1,\dots, M
+      \State Train model $T_i$
+     \State Calculate accuracy $\gamma_i^{(k)}$
+    \EndFor
+    \For l=1,\dots,L
+       \State Train dynamical system with given $\alpha_{jl}, j=1,\dots,N$
+       \State Calculate accuracy $\Gamma_l^{(k)}$
+    \EndFor
+\EndFor
+\\
+\State \tblue{k=D+1} \; \tgreen{\# Predict accuracy of dynamical system on a new data set}
+\For i=1,\dots, M
+   \State Train model $T_i$
+   \State Calculate accuracy $\gamma_i^{(D+1)}$
+\EndFor
+\For l=1,\dots,Q
+   \State Predict accuracy $\Gamma_l^{(D+1)}$ of dynamical system with given $\alpha_{jl}, \ j=1,\dots,N$
+\EndFor
+\end{algorithmic}
+
+\section{Training (optimization) via continuation}
+
+We are provided with a function $f( \boldsymbol{\gamma}, \boldsymbol{\alpha}) = \Gamma$, where $\gamma$ is ``fixed'' based on the training data sets and methods.  Maximize $\Gamma$ by continuation in $\boldsymbol{\alpha}$. Derivatives wrt $\alpha$ are available using PyTorch.
+
+
+\subsection{Sensitivities}
+
+\begin{itemize}
+    \item If, at the the optimal solution, $\alpha_i$ is large, the data in that block is important for accurate identification.
+    \item If, at the the optimal solution, $\alpha_i$ is small, the data in that block is \textbf{not} important for accurate identification.
+\end{itemize}
+
+
+\section{Inverse problems}
+
+With a forward map and derivatives of the forward map, apply a gradient-based MCMC method?
+
+\subsection{Data set to maximize accuracy}
+For example, the shape and size of the letters on a stop size
+
+\subsection{Data set to minimize accuracy (camoflage)}
+For example, the markings on a tabby cat
+
+\section{RCP notes}
+\subsection{Different notation}
+Perhaps adding a bit more detail, one can update the table by emphasizing what depends on what. Let's extend out notation a little and add
+
+\begin{itemize}
+\item $X_k$ = the predictor part of the $k$-th training data set
+\item $Y_k$ = the target part of the $k$-th training data set
+\item $Z_k$ = $\begin{bmatrix} X_k, Y_k \end{bmatrix}$. In other words, the combination of the predictors and targets of the $k$-th training data set
+\end{itemize}
+
+With this notation in hand, we can emphasize that $\gamma_i^{(k)}$ are \emph{accuracies} of the $i$th method on the $k$th data set depends on both $X_k$ \emph{and} $Y_k$ by writing 
+\begin{equation*}
+\gamma_i^{(k)}(Z_k).
+\end{equation*}
+Similarly, $\Gamma_l^{(k)}$ are also \emph{accuracies} so they depend on $X_k$ \emph{and} $Y_k$, but also depends on function family $f$ parameterized by $\alpha_{jl}^{(k)}$, so we emphasize that by writing 
+\begin{equation*}
+\Gamma_l^{(k)} = f(Z_k,\alpha_{1l}^{(k)},\dots, \alpha_{Nl}^{(k)}).
+\end{equation*}
+Now, being even more pedantic, $f$ may also have other parameters that are trained using $Z_k$.  So, the $\alpha_{jl}^{(k)}$ should really be thought of as hyper-parameters and there are 
+other trainable parameters that depend on $Z_k$ that we denote by $\theta(Z_k)$.  We we write
+\begin{equation*}
+\Gamma_l^{(k)} = f(Z_k,\alpha_{1l}^{(k)},\dots, \alpha_{nl}^{(k)}, \theta(Z_k)).
+\end{equation*}
+At this point we want to be very careful.  When we write $\gamma_i^{(k)}(Z_k)$ that is just a number that happens to be an accuracy.  In fact, even more importantly, the same is true for $\Gamma_l^{(k)}=f(Z_k,\alpha_{1l}^{(k)},\dots, \alpha_{Nl}^{(k)})$.  We are \emph{not} predicting the family of functions $f$, we are merely predicting the accuracy of family of functions $f$ at the given $Z_k,\alpha_{1l}^{(k)},\dots, \alpha_{Nl}^{(k)}$.  The \emph{family} of functions $f$ is fixed.
+
+\bigskip
+On a much more minor point, I need some help... I am really tempted to suppress the dependence of $\alpha_{jl}^{(k)}$ on the data set $k$, since that is how it is currently implemented.  However, that might not always be the case.  In fact, quite quickly I can imagine that $\alpha_{jl}^{(k)}$ does depend on the data set $k$.  However, at the moment I will just note that $\alpha_{jl}^{(k)}$ does not have to depend on $k$ and as of January 8, 2025, it does not for the most basic problems.
+\bigskip
+
+\bigskip
+So, now we can extend Table \ref{first table} by writing
+
+\begin{table}[H]
+\centering
+\begin{tabular}{||l||c|c|c||c|c|c|c||}
+\hline
+Data Set & $T_1$           & \dots    & $T_M$            & $B_1$              & \dots  & $B_N$                & $\Gamma$         \\
+\hline
+1        & $\gamma_1(Z_1)$ & \dots    & $\gamma_M(Z_1)$ & $\alpha_{11}^{(1)}$ & \dots  & $\alpha_{N1}^{(1)}$  & $\Gamma_1^{(1)}=f(Z_1,\alpha_{11}^{(1)},\dots, \alpha_{N1}^{(1)}, \theta(Z_1))$ \\
+\vdots   & \vdots          & \vdots   & \vdots          & \vdots              & \vdots & \vdots               & \vdots         \\
+1        & $\gamma_1(Z_1)$ & \dots    & $\gamma_M(Z_1)$ & $\alpha_{1L}^{(1)}$ & \dots  & $\alpha_{NL}^{(1)}$  & $\Gamma_L^{(1)}=f(Z_1,\alpha_{1L}^{(1)},\dots, \alpha_{NL}^{(1)}, \theta(Z_1))$ \\
+\hline
+2        & $\gamma_1(Z_2)$ & \dots    & $\gamma_M(Z_2)$ & $\alpha_{11}^{(2)}$ & \dots  & $\alpha_{N1}^{(2)}$  & $\Gamma_1^{(2)}=f(Z_2,\alpha_{11}^{(2)},\dots, \alpha_{N1}^{(2)}, \theta(Z_2))$ \\
+\vdots   & \vdots          & \vdots   & \vdots          & \vdots              & \vdots & \vdots               & \vdots         \\
+2        & $\gamma_1(Z_2)$ & \dots    & $\gamma_M(Z_2)$ & $\alpha_{1L}^{(2)}$ & \dots  & $\alpha_{NL}^{(2)}$  & $\Gamma_L^{(2)}=f(Z_2,\alpha_{1L}^{(2)},\dots, \alpha_{NL}^{(2)}, \theta(Z_2))$ \\
+\hline
+\vdots   & \vdots          & \vdots   & \vdots          & \vdots              & \vdots & \vdots               & \vdots         \\
+\hline
+D        & $\gamma_1(Z_D)$ & \dots    & $\gamma_M(Z_D)$ & $\alpha_{11}^{(D)}$ & \dots  & $\alpha_{N1}^{(D)}$  & $\Gamma_1^{(D)}=f(Z_D,\alpha_{11}^{(D)},\dots, \alpha_{N1}^{(D)}, \theta(Z_D))$ \\
+\vdots   & \vdots          & \vdots   & \vdots          & \vdots              & \vdots & \vdots               & \vdots         \\
+D        & $\gamma_1(Z_D)$ & \dots    & $\gamma_M(Z_D)$ & $\alpha_{1L}^{(D)}$ & \dots  & $\alpha_{NL}^{(D)}$  & $\Gamma_L^{(D)}=f(Z_D,\alpha_{1L}^{(D)},\dots, \alpha_{NL}^{(D)}, \theta(Z_D))$ \\
+\hline
+\end{tabular}
+\caption{Data frame}
+\label{second table}
+\end{table}
+
+\subsection{The problem we are trying to solve} 
+We wish to predict $\Gamma$ from the set of methods $T_i,\ i=1, \dots, m$ and let $\alpha_{jl},\ j=1,\dots,N,\ l=1,\dots,L$ be independent of the training set $k \in D$. So, we follow playbook for supervised machine learning and set
+
+$$
+\mathcal{X} =
+\begin{tabular}{|cccccc|}
+$\gamma_1(Z_1)$ & \dots    & $\gamma_M(Z_1)$ & $\alpha_{11}$ & \dots  & $\alpha_{N1}$  \\
+\vdots          & \vdots   & \vdots          & \vdots              & \vdots & \vdots               \\
+$\gamma_1(Z_1)$ & \dots    & $\gamma_M(Z_1)$ & $\alpha_{1L}$ & \dots  & $\alpha_{NL}$  \\
+$\gamma_1(Z_2)$ & \dots    & $\gamma_M(Z_2)$ & $\alpha_{11}$ & \dots  & $\alpha_{N1}$  \\
+\vdots          & \vdots   & \vdots          & \vdots              & \vdots & \vdots               \\
+$\gamma_1(Z_2)$ & \dots    & $\gamma_M(Z_2)$ & $\alpha_{1L}$ & \dots  & $\alpha_{NL}$  \\
+\vdots          & \vdots   & \vdots          & \vdots              & \vdots & \vdots               \\
+$\gamma_1(Z_D)$ & \dots    & $\gamma_M(Z_D)$ & $\alpha_{11}$ & \dots  & $\alpha_{N1}$  \\
+\vdots          & \vdots   & \vdots          & \vdots              & \vdots & \vdots               \\
+$\gamma_1(Z_D)$ & \dots    & $\gamma_M(Z_D)$ & $\alpha_{1L}$ & \dots  & $\alpha_{NL}$  \\
+\end{tabular}
+$$
+and 
+$$
+\mathcal{Y} =
+\begin{tabular}{|c|}
+$\Gamma_1^{(1)}=f(Z_1,\alpha_{11},\dots, \alpha_{N1}, \theta(Z_1))$ \\
+\vdots         \\
+$\Gamma_L^{(1)}=f(Z_1,\alpha_{1L},\dots, \alpha_{NL}, \theta(Z_1))$ \\
+\\
+$\Gamma_1^{(2)}=f(Z_2,\alpha_{11},\dots, \alpha_{N1}, \theta(Z_2))$ \\
+\vdots         \\
+$\Gamma_L^{(2)}=f(Z_2,\alpha_{1L},\dots, \alpha_{NL}, \theta(Z_2))$ \\
+\vdots         \\
+$\Gamma_1^{(D)}=f(Z_D,\alpha_{11},\dots, \alpha_{N1}, \theta(Z_D))$ \\
+\vdots         \\
+$\Gamma_L^{(D)}=f(Z_D,\alpha_{1L},\dots, \alpha_{NL}, \theta(Z_D))$ \\
+\end{tabular}
+$$
+
+Then we pick a family of functions $\mathcal{F}$, parameterized by $\theta$ and try to solve
+$$
+\theta_{optimal} = \arg \min_{\theta} \sum_i^{D*L} \| \mathcal{Y}_i - \mathcal{F}(\mathcal{X}_i;\theta)\|.
+$$
+Now fix $\theta_{optimal}$, which means, select a member of the function family $\mathcal{F}$ that we call
+$\mathcal{F}_{good}$.
+
+Note $\mathcal{F}_{good}(\alpha_{row},\gamma_{row}(Z_k))$.
+
+So now we solve the following optimization 
+
+$$
+\mathbf{\alpha}_{optimal} = \arg \max_{\alpha_{row}}  \mathcal{F}_{good} (\alpha_{row},\gamma_{row}(Z_k) ).
+$$
+
+
+
+Now, I hate to be so annoying, but $\mathcal{F}$ might have some \emph{additional} hyper-parameters $\beta$ and we shouldn't forget to include those.
+So, it would be more correct to write
+$$
+\beta_{optimal},\theta_{optimal} = \arg \min_{\beta,\theta} \| \mathcal{Y} - \mathcal{F}(\mathcal{X};\beta,\theta)\|.
+$$
+
+
+
+
+In a classic machine learning algorithm, $\theta$ is optimized using gradient descent and $\beta$ is optimized using some other kind of algorithm, such as a grid search. For example see \url{https://github.com/hyperopt/hyperopt}, \url{https://optuna.org/}, and many others.
+
+\medskip
+{\tt SJT: Do you mean additional hyperparameters, or the $\alpha_{jl}$ we have already defined? The hyperparameters $\alpha_{jl}$ are incorporated in $\mathcal{X}$ so we should really write}
+$$
+\alpha_{optimal}, \beta_{optimal},\theta_{optimal} = \arg \min_{\alpha,\beta,\theta} \| \mathcal{Y} - \mathcal{F}(\mathcal{X(\alpha)};\beta,\theta)\|.
+$$
+
+\medskip
+
+
+\subsection{A philosophical aside}
+An interesting, and I claim important, aspect of the problem posed in Tables \ref{first table} and \ref{second table} is the use of \emph{indirection} \url{https://en.wikipedia.org/wiki/Indirection}. The following quote from that web page makes we happy so some reason that I can't put my finger on :-)
+
+\begin{displayquote}
+A famous aphorism of Butler Lampson that is attributed to David Wheeler goes: "All problems in computer science can be solved by another level of indirection" (the "fundamental theorem of software engineering"). This is often deliberately mis-quoted with "abstraction layer" substituted for "level of indirection". A corollary to this aphorism, and the original conclusion from Wheeler, is "...except for the problem of too many layers of indirection."
+\end{displayquote}
+
+\emph{In particular, Tables \ref{first table} and \ref{second table} never directly access the dataset,} and they only access information about the dataset through the the various learners associated with the $\gamma$s and the target function $f$.  I think this indirection is important, though I am not entirely sure why.  I mean, this indirection certainly provides a lot of flexibility in the choice of learners and $f$, which we will use in the sequel. However, I think it goes deeper than that... and just foreshadowing a bit, I think some interesting ideas will pop out in later Sections.  However, at the moment, let's just use the flexibility and see where it takes us.
+
+\subsection{Adding a new data set}
+Now, I believe there is no issue if we were to add a new dataset $Z_{D+1}$.  That will give us new $\mathcal{X}$ and $\mathcal{Y}$ with some extra rows, and when we solve 
+$$
+\theta_{optimal} = \arg \min_{\theta} \| \mathcal{Y} - \mathcal{F}(\mathcal{X};\theta)\|
+$$
+we will just get some different $\theta_{optimal}$.  Remember the function \emph{family} $\mathcal{F}$ is fixed, and we are just choosing a particular member of that family that minimizes the above loss.
+
+Note, we have quite broad flexibility.  Our indirection allows us to add \emph{arbitrary} new data sets and retrain.
+
+{\tt SJT: I agree with the point you are making, but this ``functional programming'' paradigm unnerves me. What you are saying is that you have a function $\mathcal{F}$ that will cope with any object you provide it with, in this case, whatever the size of $\mathcal{X}, \mathcal{Y}$ you throw at it.}
+
+
+\subsection{I have been a little naughty...}
+All of the above has really been leading to a single idea that, in some sense, seems quite simple. So, we have two function families $f$ (the family of functions from which we choose a child for each data set) and $\mathcal{F}$ (the family of functions that predicts how well a child will do on a given data set).
+
+\emph{Why not let the two function *families* be the same?}
+
+I mean the two function families have exactly the same form namely $f(Z_i;\alpha,\theta)$ and $\mathcal{F}(\mathcal{X};\alpha,\theta)$. Note, I am not saying that the members of the family will be the same!  The hyper-parameters that make a \emph{good mother} and the hyper-parameters that make a child be \emph{good on MNIST} might be quite different. 
+
+Once the two function families are the same, we can just add a new data set defined as
+$$
+X_{D+1} = \mathcal{X}
+$$
+and
+$$
+Y_{D+1} = \mathcal{Y}.
+$$
+Let the recursion begin!
+
+\subsection{We are asking a lot of $f$}
+Note, we are asking a lot of our function family $f$.  There needs to be a setting of its hyper-parameters that make it a good mother, since that will lead to good children.  There also needs to be a setting of its hyper-parameters that make it good at ``MNIST'', since we want the children which are drawn from the same function family to good at real-world problems.  So, it may be that we do want $f$ and $\mathcal{F}$ to be different function families.  However, is there one function family that is very rich?  Say a single function family that includes all MLPs (and perhaps all neural networks as well)?  dynamical systems with sparse matrices!
+
+Of course, training such models can be quite difficult.  In other words, there might be parameters values that lead to good mothers and good children, but they may be hard to find.  Is there something better than gradient descent?  Continuation methods and homotopies!
+
+\subsection{Another philosophical aside...}
+I worry that we run afoul of the No-free Lunch (NFL) theorem \url{https://en.wikipedia.org/wiki/No_free_lunch_theorem}. I.e., this seems quite general! However, we are not saying there is one learner that does well on "MNIST" and the same learner does well on being a mother.  We are just saying that there is only family of learners that contains a both kinds of learners.  I don't think that could be proscribed by a NFL, otherwise wouldn't transformers also be impossible?  They are quite general.
+
+I also wonder if our indirection saves us.  I mean, a trained mother would be horrible at "MNIST".  It is just good at predicting the accuracy of a child, which is a totally different problem.  The child \emph{still needs to be trained on "MNIST"} before it has any hope of being good at "MNIST" predictions.  Since the parameters of the mother are only trained of accuracies, and those parameters never see any actual "MNIST" data, so that protect the mother from the NFL?
+
+
+\newpage
+
+\section{NLP}
+
+\subsection{Notation}
+
+Let
+\begin{itemize}
+    \item $M$ = number of words on the internet $\sim 10^{12}$
+    \item $N$ = number of words in the English language $\sim 50,000$
+    \item $C_L$ = context length $\sim 10^{6}$
+\end{itemize}
+
+Let
+\begin{itemize}
+    \item $Q$ = dimension of embedding space
+    \item $L$ = number of times the Transformer operator is trained per ``slice''
+    \item $K$ = number of iterations of the Transformer operator before each training
+\end{itemize}
+
+\medskip
+\noindent \underline{Spaces}
+\begin{itemize}
+    \item $\mathbb{R}^{N}$ is the vector space of real row vectors of length $N$
+    \item $\mathbb{D}^N$ is the vector space of unitary row vectors of length $N$, \\ i.e., $e_r^T \in \mathbb{D}^N, \forall r=1,\dots,N$. Note that $\vert \mathbb{D}^N \vert = N$.
+  \item $\mathbb{P}^N$ is the space of probability row vectors of length $N$, \\ such that if $p \in \mathbb{P}, \ p_i \ge 0 \ \forall \ i=1, \dots, N$ and $\sum_{i=1}^N p_i=1$
+\end{itemize}
+
+\medskip
+\noindent \underline{Tensors} \\
+The training data is arranged in a three-dimensional tensor, $U$. Let
+\begin{itemize}
+    \item $U \in \mathbb{D}^{C_L \times N \times M/C_L}$
+    \item $V \in \mathbb{D}^{C_L \times N}$ is a ``face" of $U$
+    \item $X \in \mathbb{R}^{C_L \times Q}$ 
+\end{itemize}
+We write $V_s = U(:,:,s), \ s=1,\dots, M/C_L$, where ${M/C_L}$ is the number ``faces" of $U$
+
+
+% \begin{itemize}
+%     \item Let $Y\in\mathcal{R}^{M\times N}$ where $Y_m = e_r^\top, \ r \in 1,\dots,N$, i.e., the $m$th row of $Y$ is a unit vector with a single 1 in column $r$.
+%     \item  Let $Z\in\mathcal{R}^{C_L\times N} \subset Y$ where $Z_m = e_r^\top, \ r \in 1,\dots,N$, i.e., the $m$th row of $Z$ is a unit vector with a single 1 in column $r$.
+%     \item  Let $X\in\mathcal{R}^{C_L\times Q} $.
+% \end{itemize}
+
+\medskip
+\noindent \underline{Operators}  \\
+Let
+\begin{itemize}
+    \item Embedding operator $E: \mathbb{D}^{N} \mapsto \mathbb{R}^{Q}$.
+    \item Transformer operator $Tr: \mathbb{R}^{C_L \times Q} \mapsto \mathbb{R}^{C_L \times Q}$.
+    \item Prolongation operator $Pr: \mathbb{R}^{Q} \mapsto \mathbb{P}^{N}$.
+    \item Discretize operator $H: \mathbb{P}^N \mapsto \mathbb{D}^N$.
+\end{itemize}
+
+The embedding, prolongation and discretize operators are applied row wise
+
+\newpage
+\subsection{Algorithm}
+
+\begin{algorithm}
+\begin{algorithmic}
+\For s=1,\dots,$M/C_L$
+    \State $X_1^{(s,1)} \gets E(V_s)$
+    \For l=1,\dots,L
+        \For k=1,\dots, K
+            \State $X_{k+1}^{(s,l)} \gets Tr(X_k^{(s,l)})$
+        \EndFor
+        \State Train based on $(X_{K+1}^{(s,l)})$ \Comment{Continuous training}
+        \For i=1,\dots,$C_L$
+            \State $p(i) \gets Pr(X_{K+1}^{(s,l)}(i,:)) \in \mathbb{P}^N$
+            \State $D(i) \gets H(p(i)) \in \mathbb{D}^N$
+        \EndFor
+        \State Alternative: Train based on $(D)$ \Comment{Discrete training} 
+        \State $X_1^{(s,l+1)} \gets D$     
+    \EndFor  
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Attention}
+``Attention'' is a feature of the particular algorithm inside the transformer mapping, $Tr: \mathbb{R}^{C_L \times Q} \mapsto \mathbb{R}^{C_L \times Q}$. One possible choice of attention is to allow the transformer operation for a given row $x_i$ of $X$ where $x_i \in \mathbb{R}^Q$, to be a function of the current and previous rows. Thus as the transformer proceeds row by row, it can only look ``backwards" to the ``past" and cannot look ``forward'' to ``future" information. Thus, for a given $X \in \mathbb{R}^{C_L \times Q}$, we have...
+
+\subsubsection{Increasing attention length}
+
+\begin{algorithm}
+\begin{algorithmic}
+\For k=1,\dots K
+   \State $x_1 \gets f_1(x_1)$ where $f_1: \mathbb{R}^Q  \mapsto \mathbb{R}^Q$
+   \For i=2,\dots,$C_L$
+       \State $x_i \gets f_i(x_i, x_{i-1}, \dots, x_1)$ where $f_i: \mathbb{R}^Q \times \mathbb{R}^Q \times \dots \times \mathbb{R}^Q  \mapsto \mathbb{R}^Q$
+   \EndFor
+\EndFor
+\State Train based on $X \in \mathbb{R}^{C_L \times Q}$ \Comment{Continuous training}
+\end{algorithmic}
+\end{algorithm}
+
+This is simply forward substitution for a lower triangular system, but rather unlike the usual situation, the functions are nonlinear rather than linear. Lower triangular linear systems can be solved in parallel. I am not sure this is the parallelization that is normally discussed in reference to transformers
+
+\subsubsection{Fixed attention length $m$}
+\begin{algorithm}
+\begin{algorithmic}
+   \State $x_1 \gets f_1(x_1)$ where $f_1: \mathbb{R}^Q  \mapsto \mathbb{R}^Q$
+   \State $x_2 \gets f_2(x_2,x_1)$ where $f_2: \mathbb{R}^Q \times \mathbb{R}^Q \mapsto \mathbb{R}^Q$
+   \State $x_3 \gets f_3(x_3,x_2,x_1)$ where $f_3: \mathbb{R}^Q \times \mathbb{R}^Q \times \mathbb{R}^Q \mapsto \mathbb{R}^Q$
+   \State \qquad \vdots
+   \State $x_m \gets f_m(x_m, x_{m-1} \dots x_3,x_2,x_1)$ where $f_m: \mathbb{R}^Q \times \mathbb{R}^Q \times \dots \times \mathbb{R}^Q  \mapsto \mathbb{R}^Q$ 
+   \For i=m+1,\dots,$C_L$
+       \State $x_i \gets f_i(x_i, x_{i-1}, \dots, x_{i-m})$ where $f_i: \mathbb{R}^Q \times \mathbb{R}^Q \times \dots \times \mathbb{R}^Q  \mapsto \mathbb{R}^Q$
+   \EndFor
+
+\end{algorithmic}
+\end{algorithm}
+
+\section{A new kind of $\alpha$}
+
+Working on the code for the reinforcement learning version of these ideas, the following occurred to me.  First, let $f^{(k)}$ denote iterating the map $f$ $k$-times so, for example, $f^{(2)}(x) = f(f(x))$.  Second, let $X_{train},Y_{train}$ and $X_{test},Y_{test}$ be, respectively, training and testing datasets.  Then
+computing a $\Gamma$ consists of two steps, where we suppress subscripts on $\Gamma$, $\theta$, and $\alpha$ to condense the notation.  First, we train a model
+
+$$
+\theta_{opt} = \arg \min_\theta \sum_{i=0}^{|X_{train}|} \|y_i - f^{(k)}(x_i;\theta,\alpha)\| 
+$$
+
+then, given the trained model, we evaluate the error on the testing data 
+
+$$
+\Gamma = \min_\theta \sum_{i=0}^{|X_{test}|} \|y_i - f^{(k)}(x_i;\theta_{opt},\alpha)\| 
+$$
+
+The $\alpha$s play the role of hyper-parameters that define our model, but in the context of iterative maps there are other important hyper-parameters having to do with $k$!  In particular, $\theta_{opt}$ is computed over several \emph{epochs}.  I.e., given the loss function
+
+$$
+\mathcal{L} = \sum_{i=0}^{|X_{train}|} \|y_i - f^{(k)}(x_i;\theta,\alpha)\|
+$$
+
+we update $\theta$
+
+$$
+\theta_{j+1} = \theta_j  - \gamma \nabla_\theta \mathcal{L} 
+$$
+
+where $j$ denotes the epoch number.  The hope is that $\lim_{j\to\infty} \theta_j = \theta_{opt}$.
+
+The issue is that $k$ is fixed in the above computation, and that is certainly not what we actually want. 
+$f$ is a dynamical system that itself needs to converge over some unknown number of iterations.  So, I think it is better to make the $\mathcal{L}$ 
+a function of $j$ and write
+
+$$
+\mathcal{L}(j) = \sum_{i=0}^{|X_{train}|} \|y_i - f^{(k(j))}(x_i;\theta,\alpha)\|
+$$
+
+where $k(j)$ is some variable number of iterations that depends on the epoch.
+
+Now, let's get really fancy!  Suppose we have that 
+
+$$
+\mathcal{L}(j) = \sum_{i=0}^{|X_{train}|} \|y_i - f^{(k(i,j))}(x_i;\theta,\alpha)\|
+$$
+
+where $k(i,j)$ is some variable number of iterations that depends on the epoch \emph{and} the training example!  Why would one do this?  This allows the number of iterations of $f$ to be \emph{random}.  E.g., at early epochs when $j$ is small the number of iterations has a high probability of being small.  This is useful  since $f$ is not well trained and may "wander off".  However, when when $j$ is the probability of having a large number of iterations can be large, since  the model is well trained and we want to give $f$ a chance to converge.
+
+What are these probabilities?  The can be additional $\alpha$s!
+
+$$
+\mathcal{L}(j) = \sum_{i=0}^{|X_{train}|} \|y_i - f^{(k(i,j;\alpha))}(x_i;\theta,\alpha)\|
+$$
+
+\end{document}
+
+\bibliographystyle{alpha}
+\bibliography{sample}
+
+\end{document}
