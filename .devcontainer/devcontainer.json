@@ -33,6 +33,7 @@
 			"ms-python.python",                 // Python extension by Microsoft
 			"github.copilot",                   // GitHub Copilot (if you use it)
 			"James-Yu.latex-workshop",          // LaTeX
+			"ms-toolsai.jupyter",			   // Jupyter Notebook support
 			// Add any other extension IDs you need here
 			],
 		}
