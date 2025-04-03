@@ -8,10 +8,10 @@
 		"ghcr.io/devcontainers-extra/features/apt-packages:1": {
 			"clean_ppas": true,
 			"preserve_apt_list": true,
-			"packages": "texlive-science, texlive-publishers",
+			"packages": "texlive-science, texlive-publishers, texlive-latex-extra",
 			"ppas": "ppa:deadsnakes/ppa"
 		}
-	}
+	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
@@ -24,6 +24,19 @@
 
 	// Configure tool-specific properties.
 	// "customizations": {},
+	// VS Code specific customizations
+	"customizations": {
+		// Configure properties specific to VS Code
+		"vscode": {
+			// List of extensions to install automatically
+			"extensions": [
+			"ms-python.python",                 // Python extension by Microsoft
+			"github.copilot",                   // GitHub Copilot (if you use it)
+			"James-Yu.latex-workshop",          // LaTeX
+			// Add any other extension IDs you need here
+			],
+		}
+	}
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
