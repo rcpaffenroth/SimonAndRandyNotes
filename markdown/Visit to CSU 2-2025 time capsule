@@ -1,0 +1,11 @@
+# Contract with Simon
+1 - Fill out table in [Training Dynamical Systems by proxy - Online LaTeX Editor Overleaf](https://www.overleaf.com/project/6754ba8e219807e15f3ee93d) with RL examples from [Box2D - Gymnasium Documentation](https://gymnasium.farama.org/environments/box2d/) using cleanrl as a template
+	There is not much math here, but lots of GPU hours and infrastructure code
+
+2 - Given such a table, how well does a random forest do predicting $\alpha$ s
+	Code in some sense already done
+
+3 - replace the random forest above for $\mathcal{F}$ with a RL algorithm that solves a trivial POMDP
+	Convinced Simon that every supervised ML problem can be phrased as a POMPDP, but is it a good idea
+
+1 a - Can I phrase MNIST as a POMPDP and when I am done how well does it work?  This can be an additional set of rows for 1!
