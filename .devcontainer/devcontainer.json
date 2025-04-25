@@ -35,6 +35,7 @@
 			"github.copilot",                   // GitHub Copilot (if you use it)
 			"James-Yu.latex-workshop",          // LaTeX
 			"ms-toolsai.jupyter",			   // Jupyter Notebook support
+			"pomdtr.excalidraw-editor",          // Excalidraw
 			// Add any other extension IDs you need here
 			],
 		}
