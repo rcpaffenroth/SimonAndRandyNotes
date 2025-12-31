@@ -58,9 +58,9 @@ To create a new directory in this repository:
 
 ### Naming Conventions
 
-- Use lowercase with hyphens for multi-word directory names (e.g., `training-ds-by-proxy`)
 - Use descriptive names that clearly indicate the directory's purpose
-- For date-based content, use the format `MM-DD-YYYY` (e.g., `4-4-2025_notes.md`)
+- For subdirectories, follow the existing convention (e.g., `Training_DS_by_proxy/` uses underscores and mixed case)
+- For date-based content, use the format `M-D-YYYY` with single digits for month and day (e.g., `4-4-2025_notes.md`, `4-11-2025_notes.md`)
 
 ### Examples
 
