@@ -30,7 +30,7 @@ To create a new directory in this repository:
 
 1. **Determine the appropriate parent location** based on content type:
    - LaTeX documents → `latex/`
-   - Markdown notes → `markdown/` (or root for standalone docs)
+   - Markdown notes → `markdown/`
    - Jupyter notebooks → `notebooks/`
    - Lux content → `lux/`
 
@@ -60,7 +60,7 @@ To create a new directory in this repository:
 
 - Use descriptive names that clearly indicate the directory's purpose
 - For subdirectories, follow the existing convention (e.g., `Training_DS_by_proxy/` uses underscores and mixed case)
-- For date-based content, use the format `M-D-YYYY` with single digits for month and day (e.g., `4-4-2025_notes.md`, `4-11-2025_notes.md`)
+- For date-based content, use the format `M-D-YYYY` without leading zeros (e.g., `4-4-2025_notes.md`, `4-11-2025_notes.md`)
 
 ### Examples
 
